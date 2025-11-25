@@ -3,6 +3,7 @@ import os
 import json
 import glob
 import re
+import shutil
 from datetime import datetime
 
 # --- CONFIGURATION ---
@@ -10,6 +11,10 @@ STUDY_PASSWORD = os.environ.get("STUDY_PASSWORD", "HelpYifan")
 DATA_DIR = "bias_annotation_ICLR"
 QUESTIONNAIRE_DIRS = ["questionnaire_1", "questionnaire_2"]
 SUB_DIRS = ["bert_race_visualizations", "qwen3_4b_race_visualizations"]
+
+# Superuser Credentials
+SUPERUSER_NAME = "superyifan"
+SUPERUSER_PASS = "IamYifan"
 
 # Ensure storage directory exists
 if not os.path.exists(DATA_DIR):
@@ -125,7 +130,7 @@ HTML_EXAMPLE_2_MODEL_1 = """
 
 HTML_EXAMPLE_2_MODEL_2 = """
 <div style='color:black; padding: 3px; font-size: 20px; font-weight: 800; font-family: sans-serif; line-height: 2.0;'>
-<span style='background-color: rgba(254.5921568627451, 236.43529411764706, 227.76470588235293, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>whites</span> <span style='background-color: rgba(252.0, 148.09019607843138, 116.39607843137256, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>&</span> <span style='background-color: rgba(254.27843137254902, 229.84705882352944, 218.35294117647058, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>their</span> <span style='background-color: rgba(227.0, 47.333333333333336, 39.0, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>corrupt</span> <span style='background-color: rgba(254.09019607843138, 225.89411764705883, 212.70588235294116, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>boss</span> <span style='background-color: rgba(252.0, 167.3843137254902, 138.51372549019607, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>johann</span> <span style='background-color: rgba(252.67450980392158, 199.478431372549, 177.52549019607844, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>rupert</span> <span style='background-color: rgba(252.2980392156863, 192.51372549019607, 168.30196078431374, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>.</span> <span style='background-color: rgba(197.50980392156865, 232.37254901960782, 190.54901960784312, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>we</span> <span style='background-color: rgba(234.01176470588237, 246.94901960784316, 229.84705882352944, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>'</span> <span style='background-color: rgba(254.27843137254902, 229.84705882352944, 218.35294117647058, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>ll</span> <span style='background-color: rgba(245.87058823529412, 251.56078431372552, 243.68235294117648, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>not</span> <span style='background-color: rgba(252.7372549019608, 200.63921568627453, 179.0627450980392, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>let</span> <span style='background-color: rgba(253.5529411764706, 215.72941176470587, 199.0470588235294, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>their</span> <span style='background-color: rgba(253.5529411764706, 215.72941176470587, 199.0470588235294, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>stooges</span> <span style='background-color: rgba(254.49803921568628, 234.45882352941177, 224.94117647058823, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>to</span> <span style='background-color: rgba(254.65490196078431, 237.7529411764706, 229.64705882352942, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>rule</span> <span style='background-color: rgba(254.74901960784314, 239.72941176470587, 232.47058823529412, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>on</span> <span style='background-color: rgba(254.49803921568628, 234.45882352941177, 224.94117647058823, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>us</span> <br><br><span style='background-color: rgba(242.48235294117646, 250.24313725490197, 239.72941176470587, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>.</span>
+<span style='background-color: rgba(254.5921568627451, 236.43529411764706, 227.76470588235293, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>whites</span> <span style='background-color: rgba(252.0, 148.09019607843138, 116.39607843137256, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>&</span> <span style='background-color: rgba(254.27843137254902, 229.84705882352944, 218.35294117647058, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>their</span> <span style='background-color: rgba(227.0, 47.333333333333336, 39.0, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>corrupt</span> <span style='background-color: rgba(254.09019607843138, 225.89411764705883, 212.70588235294116, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>boss</span> <span style='background-color: rgba(252.0, 167.3843137254902, 138.51372549019607, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>johann</span> <span style='background-color: rgba(252.67450980392158, 199.478431372549, 177.52549019607844, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>rupert</span> <span style='background-color: rgba(252.2980392156863, 192.51372549019607, 168.30196078431374, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>.</span> <span style='background-color: rgba(197.50980392156865, 232.37254901960782, 190.54901960784312, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>we</span> <span style='background-color: rgba(234.01176470588237, 246.94901960784316, 229.84705882352944, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>'</span> <span style='background-color: rgba(254.27843137254902, 229.84705882352944, 218.35294117647058, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>ll</span> <span style='background-color: rgba(245.87058823529412, 251.56078431372552, 243.68235294117648, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>not</span> <span style='background-color: rgba(252.7372549019608, 200.63921568627453, 179.0627450980392, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>let</span> <span style='background-color: rgba(253.5529411764706, 215.72941176470587, 199.0470588235294, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>their</span> <span style='background-color: rgba(253.5529411764706, 215.72941176470587, 199.0470588235294, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>stooges</span> <span style='background-color: rgba(254.49803921568628, 234.45882352941177, 224.94117647058823, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>to</span> <span style='background-color: rgba(254.65490196078431, 237.7529411764706, 229.64705882352942, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>rule</span> <span style='background-color: rgba(254.74901960784314, 239.72941176470587, 232.47058823529412, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>on</span> <span style='background-color: rgba(254.49803921568628, 234.45882352941177, 224.94117647058823, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>us</span> <br><br><span style='background-color: rgba(254.05882352941177, 225.23529411764704, 211.76470588235293, 1.0); border-radius: 5px; padding: 3px;font-weight: 800;'>.</span>
 </div>
 """
 
@@ -296,6 +301,7 @@ def login_screen():
 
                     st.session_state["logged_in"] = True
                     st.session_state["username"] = username
+                    st.session_state["is_superuser"] = False
 
                     # Check if user exists, else create
                     if UserManager.user_exists(username):
@@ -322,6 +328,15 @@ def login_screen():
                         st.success(f"Welcome, {username}!")
 
                     st.rerun()
+
+            # --- Superuser Check ---
+            elif username == SUPERUSER_NAME and password == SUPERUSER_PASS:
+                st.session_state["logged_in"] = True
+                st.session_state["username"] = username
+                st.session_state["is_superuser"] = True
+                st.success(f"Welcome back, Superuser {username}!")
+                st.rerun()
+
             else:
                 st.error("Incorrect password.")
 
@@ -761,6 +776,39 @@ def main_study_interface():
             st.success("🎉 Thank you! You have completed the study and your responses have been saved.")
 
 
+def superuser_interface():
+    st.title("Superuser Dashboard")
+    st.write("Welcome, Superuser.")
+    st.markdown("### Download Study Data")
+    st.info(f"Data Directory: `{DATA_DIR}`")
+
+    # Count files
+    json_files = glob.glob(os.path.join(DATA_DIR, "*.json"))
+    st.write(f"Total user files found: **{len(json_files)}**")
+
+    if st.button("Create ZIP Archive"):
+        # Create a zip file of the data directory
+        # shutil.make_archive base_name (no extension), format, root_dir, base_dir
+        # We want to zip the contents of DATA_DIR
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        archive_name = f"bias_study_data_{timestamp}"
+
+        try:
+            zip_path = shutil.make_archive(archive_name, 'zip', DATA_DIR)
+            st.success(f"Archive created successfully: `{zip_path}`")
+
+            with open(zip_path, "rb") as f:
+                st.download_button(
+                    label="Download Data ZIP",
+                    data=f,
+                    file_name=f"{archive_name}.zip",
+                    mime="application/zip"
+                )
+        except Exception as e:
+            st.error(f"Error creating archive: {e}")
+
+
 def main():
     st.set_page_config(page_title="Bias Study", layout="wide")
     st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
@@ -771,13 +819,17 @@ def main():
     if not st.session_state["logged_in"]:
         login_screen()
     else:
-        user_data = st.session_state["user_data"]
-
-        # Check if user has seen instructions (Step 2)
-        if not user_data.get("has_seen_instructions", False):
-            instructions_page()
+        # Check if superuser
+        if st.session_state.get("is_superuser", False):
+            superuser_interface()
         else:
-            main_study_interface()
+            user_data = st.session_state["user_data"]
+
+            # Check if user has seen instructions (Step 2)
+            if not user_data.get("has_seen_instructions", False):
+                instructions_page()
+            else:
+                main_study_interface()
 
 
 if __name__ == "__main__":
