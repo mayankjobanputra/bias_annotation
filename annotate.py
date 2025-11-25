@@ -473,7 +473,7 @@ def render_examples_reference():
     # --- EXAMPLE 3 ---
     render_example_section(
         title="Example 3",
-        input_text="all taxpayers | most taxpayers are black.",
+        input_text="all taxpayers . most taxpayers are black.",
         model_pred="Not Toxic",
         pred_bg_color="rgba(0, 170, 0, 1.0)",
         pred_text_color="black",
@@ -782,8 +782,9 @@ def superuser_interface():
     st.markdown("### Download Study Data")
     st.info(f"Data Directory: `{DATA_DIR}`")
 
-    # Count files
+    # Get list of all user files
     json_files = glob.glob(os.path.join(DATA_DIR, "*.json"))
+
     st.write(f"Total user files found: **{len(json_files)}**")
 
     if st.button("Create ZIP Archive"):
@@ -807,6 +808,51 @@ def superuser_interface():
                 )
         except Exception as e:
             st.error(f"Error creating archive: {e}")
+
+    st.divider()
+    st.markdown("### Manage Users")
+
+    if not json_files:
+        st.warning("No user data found.")
+    else:
+        st.write("List of annotators:")
+
+        # Create a container for the list to allow dynamic updates
+        user_list_container = st.container()
+
+        with user_list_container:
+            for file_path in json_files:
+                filename = os.path.basename(file_path)
+                username = os.path.splitext(filename)[0]
+
+                # Load user data to get progress info
+                try:
+                    with open(file_path, 'r') as f:
+                        u_data = json.load(f)
+                        n_completed = len(u_data.get("annotations", {}))
+                        q_id = u_data.get("questionnaire", "Unknown")
+                except:
+                    n_completed = "?"
+                    q_id = "?"
+
+                col1, col2, col3, col4 = st.columns([2, 2, 2, 1])
+                with col1:
+                    st.text(username)
+                with col2:
+                    st.caption(f"Q: {q_id}")
+                with col3:
+                    st.caption(f"Completed: {n_completed}")
+                with col4:
+                    if st.button("Delete", key=f"del_{username}"):
+                        try:
+                            os.remove(file_path)
+                            st.success(f"Deleted user: {username}")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Error deleting {username}: {e}")
+
+        if st.button("Refresh User List"):
+            st.rerun()
 
 
 def main():
